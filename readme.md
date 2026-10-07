@@ -1,92 +1,91 @@
 # Restaurant Management & Ordering System
 
-A C++ console application designed to handle customer food/beverage ordering and staff management for a restaurant. The program supports dual-role authentication (Customer vs. Staff), order placing and cancellation, menu expansion, persistent file storage, and sales report analytics.
+A comprehensive C++ console application designed to handle customer food/beverage ordering and staff menu/sales management. The system features role-based authentication, strict phone-number verification, persistent menu management, order cancellation, and detailed financial reporting.
 
 ---
 
-## Features
+## Key Features
 
-- **Authentication & Role Selection**:
-  - **Customer Access**: Enter ID `101` for simple ordering.
-  - **Staff/Management Access**: Secured with ID (`102`) and password (`2222`). Includes a 3-attempt lock protection.
-- **Customer Portal**:
-  - View food & beverage menu with pricing.
-  - Place multi-item orders recorded with automatic timestamps.
-  - Cancel the last placed order.
-  - View current order summary and print final bill at checkout.
-- **Management Portal**:
-  - **Add Menu Items**: Dynamically add new food items and prices to the menu.
-  - **Sales Records**: View complete order history across all customers.
-  - **Customer Lookup**: Search total spending and order history by Customer ID.
-  - **Income Analytics**: Filter revenue reports by specific Day, Month, or Year.
-- **Data Persistence**: Uses flat text files (`orders.txt` and `extra_items.txt`) to persist orders and added menu items across program restarts.
+### 🔐 Authentication & Access Control
+* **Customer Access**: Access using key ID `101` with zero password requirement.
+* **Staff/Management Access**: Access using staff ID `102` and password `2222` with a 3-attempt lock mechanism.
+
+### 🍽️ Customer Interface
+* **Menu Viewing**: Browse food items and prices loaded dynamically from local storage.
+* **Order Placement**: Select items by code and set quantities with automatic real-time date tagging.
+* **Order Cancellation**: Cancel the most recent active order placed in the current session.
+* **Phone Verification & Checkout**: Validates a 10-digit phone number (must start with `98`) upon checkout, attaches it to the session's transaction log, and prints a finalized bill.
+
+### 🛠️ Staff & Management Interface
+* **Menu Editing & Management**:
+  * View current active menu.
+  * Add new menu items (item code, name, price).
+  * Edit existing menu items (rename, update price, or delete).
+* **Sales Analysis & Reports**:
+  * **Sales Log**: View all historical transactions with date, phone number, and items purchased.
+  * **Customer Lookup**: Search full order histories using a customer's phone number.
+  * **Income Breakdown**: Generate daily, monthly, and yearly income reports with per-customer spending summaries.
 
 ---
 
-## File Structure & Storage
+## Data & Storage Files
 
-The program auto-generates/reads the following local text files:
+The system automatically manages two flat text files for persistent storage:
 
-- `orders.txt`: Stores historical transaction logs in the format:  
-  `Day Month Year CustomerID ItemCode ItemName Quantity Price TotalCost`
-- `extra_items.txt`: Stores menu additions created dynamically by management in the format:  
-  `ItemCode ItemName Price`
+1. `menu.txt`: Stores the current menu configuration (`ItemCode ItemName Price`). If missing, the application generates a default menu with 21 items upon startup.
+2. `orders.txt`: Records transaction details line-by-line:
+   ```text
+   Day Month Year CustomerID ItemCode ItemName Quantity UnitPrice TotalCost Phone
+   ```
 
 ---
 
 ## System Requirements & Prerequisites
 
-- **Language**: C++11 or higher
-- **Compiler**: Any standard C++ compiler (`g++`, `clang++`, or MSVC)
-- **OS**: Windows, macOS, or Linux
+* **Language Standard**: C++11 or higher
+* **Compiler**: `g++`, `clang++`, MSVC, or any standard C++ compiler
+* **Operating System**: Cross-platform (Windows, Linux, macOS)
 
 ---
 
-## Compilation & Execution
+## Compilation & Running
 
 ### Using GCC / Clang (Terminal / Command Prompt)
 
-1. Compile the source file:
+1. Compile the program:
    ```bash
-   g++ -std=c++11 main.cpp -o restaurant_system
+   g++ -std=c++11 project_sem2.cpp -o restaurant_system
    ```
 
-2. Run the compiled executable:
-   - **Linux / macOS**:
+2. Run the executable:
+   * **Linux / macOS**:
      ```bash
      ./restaurant_system
      ```
-   - **Windows**:
+   * **Windows**:
      ```cmd
      restaurant_system.exe
      ```
 
 ---
 
-## Usage Guide
+## Credentials & Quick Reference
 
-### Default Credentials
-
-| Role | User ID | Password | Access Capabilities |
+| Role | User ID | Password | Main Features |
 | :--- | :--- | :--- | :--- |
-| **Customer** | `101` | *None* | View menu, place/cancel orders, view summary, checkout bill |
-| **Staff / Admin** | `102` | `2222` | Add menu items, search customer sales, view daily/monthly/yearly income |
+| **Customer** | `101` | *None* | View Menu, Order, Cancel Last Order, Phone Checkout |
+| **Management** | `102` | `2222` | Edit/Add Menu Items, View Sales Logs, Search by Phone, Revenue Reports |
 
 ---
 
-### Menu Workflow Overview
+## Menu Workflow Overview
 
-#### 1. Customer Interface (ID: `101`)
-1. **View Menu**: Lists all default items (e.g., Momo, Chowmein, Thakali Sets, Beverages) alongside any custom-added items.
-2. **Take Order**: Prompt for item code and quantity. Automatically updates `orders.txt`.
-3. **Cancel Order**: Removes the most recent order line for your session from both memory and `orders.txt`.
-4. **View Current Order**: Displays items ordered in the active session and subtotal cost.
-5. **Print Bill & Checkout**: Outputs total receipt and exits customer workflow.
-
-#### 2. Staff Interface (ID: `102`, Password: `2222`)
-1. **Add new menu item**: Enter item code, single-word name (e.g., `FriedRice`), and price. Saves to `extra_items.txt`.
-2. **Check sold foods**: Prints all logged orders and cumulative grand total income.
-3. **Search customer**: Input Customer ID to view their lifetime order history and total spend.
-4. **Daily income**: Input `Day`, `Month`, `Year` (e.g., `5 10 2026`) to filter total daily revenue.
-5. **Monthly income**: Input `Month` and `Year` to calculate monthly total earnings.
-6. **Yearly income**: Input `Year` to calculate annual revenue.
+### Management Menu Options
+1. **View menu**: Display active menu.
+2. **Add new menu item**: Append a new dish to `menu.txt`.
+3. **Edit menu**: Rename, change price, or delete an existing item code.
+4. **View all sales logs**: Display raw order history.
+5. **Daily income report**: Enter day, month, and year to see daily total and per-customer breakdown.
+6. **Monthly income report**: Enter month and year to see monthly total revenue.
+7. **Yearly income report**: Enter year to review full annual revenue.
+8. **Search customer by phone**: View total lifetime spend and item breakdown for a given phone number.
