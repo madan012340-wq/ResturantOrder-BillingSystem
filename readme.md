@@ -6,17 +6,17 @@ A comprehensive C++ console application designed to handle customer food/beverag
 
 ## Key Features
 
-### 🔐 Authentication & Access Control
+###  Authentication & Access Control
 * **Customer Access**: Access using key ID `101` with zero password requirement.
 * **Staff/Management Access**: Access using staff ID `102` and password `2222` with a 3-attempt lock mechanism.
 
-### 🍽️ Customer Interface
+###  Customer Interface
 * **Menu Viewing**: Browse food items and prices loaded dynamically from local storage.
 * **Order Placement**: Select items by code and set quantities with automatic real-time date tagging.
 * **Order Cancellation**: Cancel the most recent active order placed in the current session.
 * **Phone Verification & Checkout**: Validates a 10-digit phone number (must start with `98`) upon checkout, attaches it to the session's transaction log, and prints a finalized bill.
 
-### 🛠️ Staff & Management Interface
+###  Staff & Management Interface
 * **Menu Editing & Management**:
   * View current active menu.
   * Add new menu items (item code, name, price).
