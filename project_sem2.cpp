@@ -127,7 +127,7 @@ void Customer::place_order()
 	cout<<"Enter item code: ";
 	c=getInt();
 	for(i=0; i<itemcount; i++)
-		if(itemcode[i]==c) 
+		if(itemcode[i]==c)
 			break;
 	if(i==itemcount)
 	{
@@ -174,7 +174,7 @@ void Customer::cancel_order()
 	int last=-1;
 	for(int i=0; i<cnt; i++)
 	{
-		if(cid[i]==custid && ph[i]=="-") 
+		if(cid[i]==custid && ph[i]=="-")
 			last=i;	//only this sitting's orders (phone not added yet)
 	}
 	if(last==-1)
@@ -183,7 +183,8 @@ void Customer::cancel_order()
 		return;
 	}
 	ofstream fout("orders.txt");
-	for(int i=0; i<cnt; i++){
+	for(int i=0; i<cnt; i++)
+	{
 		if(i!=last)
 			fout<<d[i]<<" "<<m[i]<<" "<<y[i]<<" "<<cid[i]<<" "<<code[i]<<" "<<nm[i]<<" "<<q[i]<<" "<<p[i]<<" "<<cost[i]<<" "<<ph[i]<<endl;
 	}
@@ -236,7 +237,6 @@ void Customer::checkout()
 		}
 		fout.close();
 	}
-
 	cout<<"===== BILL ====="<<endl;
 	cout<<"Phone: "<<phone<<endl;
 	show_summary();
@@ -284,7 +284,8 @@ void Management::edit_menu()
 	code=getInt();
 	int i;
 	for(i=0; i<itemcount; i++)
-		if(itemcode[i]==code) break;
+		if(itemcode[i]==code) 
+		break;
 	if(i==itemcount)
 	{
 		cout<<"Item not found."<<endl;
@@ -349,6 +350,7 @@ void Management::sold_foods()
 void Management::customer_search()
 {
 	string phone;
+	int d,m,y,cid,code,q,p,cost,sum=0,found=0;
 	cout<<"Enter customer phone number to search: ";
 	cin>>phone;
 	ifstream fin("orders.txt");
@@ -357,7 +359,6 @@ void Management::customer_search()
 		cout<<"No orders yet."<<endl;
 		return;
 	}
-	int d,m,y,cid,code,q,p,cost,sum=0,found=0;
 	string nm,ph;
 	while(fin>>d>>m>>y>>cid>>code>>nm>>q>>p>>cost>>ph)
 	{
@@ -369,12 +370,15 @@ void Management::customer_search()
 		}
 	}
 	fin.close();
-	if(found==1) cout<<"Total spent by "<<phone<<": Rs."<<sum<<endl;
-	else cout<<"No orders found for this number."<<endl;
+	if(found==1)
+		cout<<"Total spent by "<<phone<<": Rs."<<sum<<endl;
+	else
+		cout<<"No orders found for this number."<<endl;
 }
 void Management::daily_income()
 {
-	int dd,mm,yy;
+	int dd,mm,yy,phsum[500]i,k,pc=0;
+	string phones[500];
 	do
 	{
 		cout<<"Enter day: ";
@@ -396,7 +400,6 @@ void Management::daily_income()
 		if(yy<1900||yy>2100) cout<<"Enter a valid year (1900-2100)!"<<endl;
 	}
 	while(yy<1900||yy>2100);
-
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
@@ -406,20 +409,17 @@ void Management::daily_income()
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0,sum=0;
 	string nm[500],ph[500];
 	while(cnt<500 && fin>>d[cnt]>>m[cnt]>>y[cnt]>>cid[cnt]>>code[cnt]>>nm[cnt]>>q[cnt]>>p[cnt]>>cost[cnt]>>ph[cnt])
+	{
 		cnt++;
+	}
 	fin.close();
-
 	cout<<"----- RECORD FOR "<<dd<<"/"<<mm<<"/"<<yy<<" -----"<<endl;
-	string phones[500];
-	int phsum[500];
-	int pc=0;
-	for(int i=0; i<cnt; i++)
+	for(i=0; i<cnt; i++)
 	{
 		if(d[i]==dd && m[i]==mm && y[i]==yy)
 		{
 			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
 			sum+=cost[i];
-			int k;
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
 			if(k==pc)
@@ -432,13 +432,14 @@ void Management::daily_income()
 		}
 	}
 	cout<<"----- PER CUSTOMER BREAKDOWN -----"<<endl;
-	for(int k=0; k<pc; k++)
+	for(k=0; k<pc; k++)
 		cout<<phones[k]<<" : Rs."<<phsum[k]<<endl;
 	cout<<"Total income for the day: Rs."<<sum<<endl;
 }
 void Management::monthly_income()
 {
-	int mm,yy;
+	int mm,yy,i,k,pc=0,phsum[500];
+	string phones[500];
 	do
 	{
 		cout<<"Enter month (1-12): ";
@@ -453,7 +454,6 @@ void Management::monthly_income()
 		if(yy<1900||yy>2100) cout<<"Enter a valid year (1900-2100)!"<<endl;
 	}
 	while(yy<1900||yy>2100);
-
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
@@ -463,20 +463,17 @@ void Management::monthly_income()
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0,sum=0;
 	string nm[500],ph[500];
 	while(cnt<500 && fin>>d[cnt]>>m[cnt]>>y[cnt]>>cid[cnt]>>code[cnt]>>nm[cnt]>>q[cnt]>>p[cnt]>>cost[cnt]>>ph[cnt])
+	{
 		cnt++;
+	}
 	fin.close();
-
 	cout<<"----- RECORD FOR "<<mm<<"/"<<yy<<" -----"<<endl;
-	string phones[500];
-	int phsum[500];
-	int pc=0;
-	for(int i=0; i<cnt; i++)
+	for(i=0; i<cnt; i++)
 	{
 		if(m[i]==mm && y[i]==yy)
 		{
 			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
 			sum+=cost[i];
-			int k;
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
 			if(k==pc)
@@ -495,7 +492,8 @@ void Management::monthly_income()
 }
 void Management::yearly_income()
 {
-	int yy;
+	int i,k,yy,pc=0,phsum[500];
+	string phones[500];
 	do
 	{
 		cout<<"Enter year: ";
@@ -516,16 +514,13 @@ void Management::yearly_income()
 		cnt++;
 	fin.close();
 	cout<<"----- RECORD FOR "<<yy<<" -----"<<endl;
-	string phones[500];
-	int phsum[500];
-	int pc=0;
-	for(int i=0; i<cnt; i++)
+
+	for(i=0; i<cnt; i++)
 	{
 		if(y[i]==yy)
 		{
 			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
 			sum+=cost[i];
-			int k;
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
 			if(k==pc)
@@ -538,7 +533,7 @@ void Management::yearly_income()
 		}
 	}
 	cout<<"----- PER CUSTOMER BREAKDOWN -----"<<endl;
-	for(int k=0; k<pc; k++)
+	for(k=0; k<pc; k++)
 		cout<<phones[k]<<" : Rs."<<phsum[k]<<endl;
 	cout<<"Total income for the year: Rs."<<sum<<endl;
 }
@@ -640,16 +635,26 @@ int main()
 				cout<<" 9. Exit"<<endl;
 				cout<<"Choice: ";
 				ch=getInt();
-				if(ch==1) mg.viewmenu();
-				else if(ch==2) mg.add_item();
-				else if(ch==3) mg.edit_menu();
-				else if(ch==4) mg.sold_foods();
-				else if(ch==5) mg.daily_income();
-				else if(ch==6) mg.monthly_income();
-				else if(ch==7) mg.yearly_income();
-				else if(ch==8) mg.customer_search();
-				else if(ch==9) break;
-				else cout<<"Invalid choice."<<endl;
+				if(ch==1)
+					mg.viewmenu();
+				else if(ch==2)
+					mg.add_item();
+				else if(ch==3)
+					mg.edit_menu();
+				else if(ch==4)
+					mg.sold_foods();
+				else if(ch==5)
+					mg.daily_income();
+				else if(ch==6)
+					mg.monthly_income();
+				else if(ch==7)
+					mg.yearly_income();
+				else if(ch==8)
+					mg.customer_search();
+				else if(ch==9)
+					break;
+				else
+					cout<<"Invalid choice."<<endl;
 			}
 			while(ch!=9);
 			break;
