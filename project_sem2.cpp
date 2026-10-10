@@ -5,7 +5,10 @@
 #include <ctime>
 #include <cstdlib>
 #include <limits>
+#include <sstream>
 using namespace std;
+
+const int CONSOLE_WIDTH = 120;
 
 void clearConsole()
 {
@@ -16,11 +19,23 @@ void clearConsole()
 #endif
 }
 
+string pad(const string &s)
+{
+	int p = (CONSOLE_WIDTH - (int)s.length()) / 2;
+	if(p < 0) p = 0;
+	return string(p, ' ');
+}
+
+void printCentered(const string &s)
+{
+	cout << pad(s) << s << endl;
+}
+
 void pauseConsole()
 {
-    cout << "\nPress Enter to continue...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
+	cout << pad("Press Enter to continue...") << "Press Enter to continue...";
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.get();
 }
 int itemcode[50]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21};
 string itemname[50]= {"VegMomo","ChickenMomo","BuffMomo","JholMomo","VegChowmein","ChickenChowmein","BuffChowmein","ChickenChoila","AaluSadeko","PaneerChili","BuffSekuwa","VegThakaliSet","ChickenThaliSet","MuttonThakaliSet","MasalaTea","BlackCoffee","HoneyTea","ColdDrinks","LimeSoda","SweetLassi","MangoLassi"};
@@ -34,7 +49,7 @@ int getInt()//int,char,float validation
 	{
 		cin.clear();
 		cin.ignore(1000,'\n');
-		cout<<"Invalid input! Enter a number: ";
+		cout<<pad("Invalid input! Enter a number: ")<<"Invalid input! Enter a number: ";
 		cin>>num;
 	}
 	return num;
@@ -59,6 +74,9 @@ void savemenu()//writes the whole menu back to the file after editing menu
 void loadmenu()
 {
 	ifstream fin("menu.txt");
+	cout<<endl<<endl;
+	printCentered("Resturant Order and Billing System");
+	cout<<endl;
 	if(!fin.is_open())//makes menu.txt from the menu above
 	{
 		fin.close();
@@ -77,9 +95,22 @@ class Menu
 	public:
 		void DisplaySecondMenu()
 		{
-			cout<<endl<<"		  FOOD & BEVERAGE MENU"<<endl<<endl;
+			cout<<"\n\n";
+			printCentered("FOOD & BEVERAGE MENU");
+			cout<<"\n";
 			for(int i=0; i<itemcount; i++)
-				cout<<" "<<itemcode[i]<<".\t"<<itemname[i]<<"\t\tRs. "<<itemprice[i]<<endl;
+			{
+				string num = to_string(itemcode[i]);
+				string line = num + ".";
+				line += (num.length() == 1) ? "  " : " ";
+				int dots = 60 - (int)itemname[i].length();
+				if(dots < 1) dots = 1;
+				string pr = to_string(itemprice[i]);
+				if(pr.length() < 3) pr = string(3 - pr.length(), ' ') + pr;
+				line += itemname[i] + string(dots, '.') + "Rs. " + pr;
+				printCentered(line);
+			}
+			cout<<"\n\n";
 		}
 };
 class Resturant
@@ -90,18 +121,19 @@ class Resturant
 			int choice;
 			do
 			{
-				cout<<"     OPTIONS "<<endl<<endl;
-				cout<<" 1. VIEW MENU "<<endl;
-				cout<<" 2. TAKE ORDER "<<endl;
-				cout<<" 3. CANCEL ORDER "<<endl;
-				cout<<" 4. VIEW CURRENT ORDER "<<endl;
-				cout<<" 5. PRINT BILL & CHECKOUT "<<endl;
-				cout<<" 6. EXIT"<<endl;
-				cout<<" ENTER A NUMBER : ";
+				printCentered("OPTIONS");
+				cout<<endl;
+				printCentered("1. TAKE ORDER");
+				printCentered("2. CANCEL ORDER");
+				printCentered("3. VIEW CURRENT ORDER");
+				printCentered("4. PRINT BILL & CHECKOUT");
+				printCentered("5. EXIT");
+				cout<<endl;
+				cout<<pad("ENTER A NUMBER : ")<<"ENTER A NUMBER : ";
 				choice=getInt();
-				if(choice>6||choice<1) cout<<"ERROR: Out of range"<<endl;
+				if(choice>5||choice<1) printCentered("ERROR: Out of range");
 			}
-			while(choice>6||choice<1);
+			while(choice>5||choice<1);
 			return choice;
 		}
 };
@@ -142,21 +174,24 @@ class Customer
 void Customer::place_order()
 {
 	int c,q,i,cost,d,m,y;
-	cout<<"Enter item code: ";
+	Menu ordermenu;
+	ordermenu.DisplaySecondMenu();
+	cout<<endl;
+	cout<<pad("Enter item code: ")<<"Enter item code: ";
 	c=getInt();
 	for(i=0; i<itemcount; i++)
 		if(itemcode[i]==c)
 			break;
 	if(i==itemcount)
 	{
-		cout<<"Invalid code."<<endl;
+		printCentered("Invalid code.");
 		return;
 	}
-	cout<<"Enter quantity: ";
+	cout<<pad("Enter quantity: ")<<"Enter quantity: ";
 	q=getInt();
 	if(q<=0)
 	{
-		cout<<"Quantity must be atleast 1."<<endl;
+		printCentered("Quantity must be atleast 1.");
 		return;
 	}
 	cost=itemprice[i]*q;
@@ -169,19 +204,21 @@ void Customer::place_order()
 	prices[n]=cost;
 	n++;
 	total+=cost;
-	cout<<"Order placed: "<<q<<" x "<<itemname[i]<<" = Rs."<<cost<<endl;
+	ostringstream oss;
+	oss<<"Order placed: "<<q<<" x "<<itemname[i]<<" = Rs."<<cost;
+	printCentered(oss.str());
 }
 void Customer::cancel_order()
 {
 	if(n==0)
 	{
-		cout<<"No orders to cancel."<<endl;
+		printCentered("No orders to cancel.");
 		return;
 	}
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders file."<<endl;
+		printCentered("No orders file.");
 		return;
 	}
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0;
@@ -197,7 +234,7 @@ void Customer::cancel_order()
 	}
 	if(last==-1)
 	{
-		cout<<"No record found."<<endl;
+		printCentered("No record found.");
 		return;
 	}
 	ofstream fout("orders.txt");
@@ -209,22 +246,28 @@ void Customer::cancel_order()
 	fout.close();
 	total-=prices[n-1];
 	n--;
-	cout<<"Last order cancelled."<<endl;
+	printCentered("Last order cancelled.");
 }
 void Customer::show_summary()
 {
-	cout<<"Customer ID: "<<custid<<endl;
-	cout<<"----- Your orders  -----"<<endl;
+	ostringstream oss;
+	oss<<"Customer ID: "<<custid;
+	printCentered(oss.str());
+	printCentered("----- Your orders  -----");
 	if(n==0)
 	{
-		cout<<"Nothing ordered yet."<<endl;
+		printCentered("Nothing ordered yet.");
 		return;
 	}
 	for(int i=0; i<n; i++)
 	{
-		cout<<qtys[i]<<" x "<<names[i]<<" = Rs."<<prices[i]<<endl;
+		ostringstream oss2;
+		oss2<<qtys[i]<<" x "<<names[i]<<" = Rs."<<prices[i];
+		printCentered(oss2.str());
 	}
-	cout<<"Total cost of food eaten: Rs."<<total<<endl;
+	ostringstream oss3;
+	oss3<<"Total cost of food eaten: Rs."<<total;
+	printCentered(oss3.str());
 }
 void Customer::checkout()
 {
@@ -232,10 +275,10 @@ void Customer::checkout()
 	string phone;
 	while(true)
 	{
-		cout<<"Enter your phone number (must start with 98 and be 10 digits): ";
+		cout<<pad("Enter your phone number (must start with 98 and be 10 digits): ")<<"Enter your phone number (must start with 98 and be 10 digits): ";
 		cin>>phone;
 		if(phonecheck(phone)) break;
-		cout<<"Invalid phone number!"<<endl;
+		printCentered("Invalid phone number!");
 	}
 	today(dd,mm,yy);
 	ifstream fin("orders.txt");
@@ -255,10 +298,13 @@ void Customer::checkout()
 		}
 		fout.close();
 	}
-	cout<<"===== BILL ====="<<endl;
-	cout<<"Phone: "<<phone<<endl;
+	cout<<endl;
+	printCentered("===== BILL =====");
+	ostringstream oss;
+	oss<<"Phone: "<<phone;
+	printCentered(oss.str());
 	show_summary();
-	cout<<"Thank you for visiting!"<<endl;
+	printCentered("Thank you for visiting!");
 }
 class Management
 {
@@ -281,24 +327,29 @@ void Management::add_item()
 {
 	if(itemcount>=50)
 	{
-		cout<<"Menu is full!"<<endl;
+		printCentered("Menu is full!");
 		return;
 	}
-	cout<<"Enter new item code: ";
+	cout<<pad("Enter new item code: ")<<"Enter new item code: ";
 	itemcode[itemcount]=getInt();
-	cout<<"Enter item name (one word, eg FriedRice): ";
+	cout<<pad("Enter item name (one word, eg FriedRice): ")<<"Enter item name (one word, eg FriedRice): ";
 	cin>>itemname[itemcount];
-	cout<<"Enter price: ";
+	while(itemname[itemcount].length()>50)
+	{
+		cout<<pad("Name too long (max 50 characters). Enter again: ")<<"Name too long (max 50 characters). Enter again: ";
+		cin>>itemname[itemcount];
+	}
+	cout<<pad("Enter price: ")<<"Enter price: ";
 	itemprice[itemcount]=getInt();
 	itemcount++;
 	savemenu();
-	cout<<"Item added."<<endl;
+	printCentered("Item added.");
 }
 void Management::edit_menu()
 {
 	viewmenu();
 	int code;
-	cout<<"Enter the item code you want to edit: ";
+	cout<<pad("Enter the item code you want to edit: ")<<"Enter the item code you want to edit: ";
 	code=getInt();
 	int i;
 	for(i=0; i<itemcount; i++)
@@ -306,25 +357,27 @@ void Management::edit_menu()
 		break;
 	if(i==itemcount)
 	{
-		cout<<"Item not found."<<endl;
+		printCentered("Item not found.");
 		return;
 	}
-	cout<<"Current: "<<itemname[i]<<" Rs."<<itemprice[i]<<endl;
-	cout<<" 1. Rename"<<endl;
-	cout<<" 2. Change price"<<endl;
-	cout<<" 3. Delete item"<<endl;
-	cout<<" 4. Cancel"<<endl;
+	ostringstream oss;
+	oss<<"Current: "<<itemname[i]<<" Rs."<<itemprice[i];
+	printCentered(oss.str());
+	printCentered("1. Rename");
+	printCentered("2. Change price");
+	printCentered("3. Delete item");
+	printCentered("4. Cancel");
 	int ch;
-	cout<<"Choice: ";
+	cout<<pad("Choice: ")<<"Choice: ";
 	ch=getInt();
 	if(ch==1)
 	{
-		cout<<"Enter new name: ";
+		cout<<pad("Enter new name: ")<<"Enter new name: ";
 		cin>>itemname[i];
 	}
 	else if(ch==2)
 	{
-		cout<<"Enter new price: ";
+		cout<<pad("Enter new price: ")<<"Enter new price: ";
 		itemprice[i]=getInt();
 	}
 	else if(ch==3)
@@ -336,45 +389,50 @@ void Management::edit_menu()
 			itemprice[j]=itemprice[j+1];
 		}
 		itemcount--;
-		cout<<"Item deleted."<<endl;
+		printCentered("Item deleted.");
 	}
 	else
 	{
-		cout<<"Edit cancelled."<<endl;
+		printCentered("Edit cancelled.");
 		return;
 	}
 	savemenu();
-	cout<<"Menu file updated."<<endl;
+	printCentered("Menu file updated.");
 }
 void Management::sold_foods()
 {
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders yet."<<endl;
+		printCentered("No orders yet.");
 		return;
 	}
 	int d,m,y,cid,code,q,p,cost,grand=0;
 	string nm,ph;
-	cout<<"----- SOLD FOODS / ALL CUSTOMER RECORDS -----"<<endl;
+	cout<<endl;
+	printCentered("----- SOLD FOODS / ALL CUSTOMER RECORDS -----");
 	while(fin>>d>>m>>y>>cid>>code>>nm>>q>>p>>cost>>ph)
 	{
-		cout<<d<<"/"<<m<<"/"<<y<<" | "<<ph<<" | "<<nm<<" x"<<q<<" | Rs."<<cost<<endl;
+		ostringstream oss;
+		oss<<d<<"/"<<m<<"/"<<y<<" | "<<ph<<" | "<<nm<<" x"<<q<<" | Rs."<<cost;
+		printCentered(oss.str());
 		grand+=cost;
 	}
 	fin.close();
-	cout<<"Grand total income: Rs."<<grand<<endl;
+	ostringstream oss;
+	oss<<"Grand total income: Rs."<<grand;
+	printCentered(oss.str());
 }
 void Management::customer_search()
 {
 	string phone;
 	int d,m,y,cid,code,q,p,cost,sum=0,found=0;
-	cout<<"Enter customer phone number to search: ";
+	cout<<pad("Enter customer phone number to search: ")<<"Enter customer phone number to search: ";
 	cin>>phone;
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders yet."<<endl;
+		printCentered("No orders yet.");
 		return;
 	}
 	string nm,ph;
@@ -382,16 +440,22 @@ void Management::customer_search()
 	{
 		if(ph==phone)
 		{
-			cout<<d<<"/"<<m<<"/"<<y<<" | "<<nm<<" x"<<q<<" | Rs."<<cost<<endl;
+			ostringstream oss;
+			oss<<d<<"/"<<m<<"/"<<y<<" | "<<nm<<" x"<<q<<" | Rs."<<cost;
+			printCentered(oss.str());
 			sum+=cost;
 			found=1;
 		}
 	}
 	fin.close();
 	if(found==1)
-		cout<<"Total spent by "<<phone<<": Rs."<<sum<<endl;
+	{
+		ostringstream oss;
+		oss<<"Total spent by "<<phone<<": Rs."<<sum;
+		printCentered(oss.str());
+	}
 	else
-		cout<<"No orders found for this number."<<endl;
+		printCentered("No orders found for this number.");
 }
 void Management::daily_income()
 {
@@ -399,29 +463,29 @@ void Management::daily_income()
 	string phones[500];
 	do
 	{
-		cout<<"Enter day: ";
+		cout<<pad("Enter day: ")<<"Enter day: ";
 		dd=getInt();
-		if(dd<1||dd>31) cout<<"Day must be between 1 and 31!"<<endl;
+		if(dd<1||dd>31) printCentered("Day must be between 1 and 31!");
 	}
 	while(dd<1||dd>31);
 	do
 	{
-		cout<<"Enter month: ";
+		cout<<pad("Enter month: ")<<"Enter month: ";
 		mm=getInt();
-		if(mm<1||mm>12) cout<<"Month must be between 1 and 12!"<<endl;
+		if(mm<1||mm>12) printCentered("Month must be between 1 and 12!");
 	}
 	while(mm<1||mm>12);
 	do
 	{
-		cout<<"Enter year: ";
+		cout<<pad("Enter year: ")<<"Enter year: ";
 		yy=getInt();
-		if(yy<1900||yy>2100) cout<<"Enter a valid year (1900-2100)!"<<endl;
+		if(yy<1900||yy>2100) printCentered("Enter a valid year (1900-2100)!");
 	}
 	while(yy<1900||yy>2100);
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders yet."<<endl;
+		printCentered("No orders yet.");
 		return;
 	}
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0,sum=0;
@@ -431,12 +495,17 @@ void Management::daily_income()
 		cnt++;
 	}
 	fin.close();
-	cout<<"----- RECORD FOR "<<dd<<"/"<<mm<<"/"<<yy<<" -----"<<endl;
+	cout<<endl;
+	ostringstream hdr;
+	hdr<<"----- RECORD FOR "<<dd<<"/"<<mm<<"/"<<yy<<" -----";
+	printCentered(hdr.str());
 	for(i=0; i<cnt; i++)
 	{
 		if(d[i]==dd && m[i]==mm && y[i]==yy)
 		{
-			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
+			ostringstream oss;
+			oss<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i];
+			printCentered(oss.str());
 			sum+=cost[i];
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
@@ -449,10 +518,16 @@ void Management::daily_income()
 			phsum[k]+=cost[i];
 		}
 	}
-	cout<<"----- PER CUSTOMER BREAKDOWN -----"<<endl;
+	printCentered("----- PER CUSTOMER BREAKDOWN -----");
 	for(k=0; k<pc; k++)
-		cout<<phones[k]<<" : Rs."<<phsum[k]<<endl;
-	cout<<"Total income for the day: Rs."<<sum<<endl;
+	{
+		ostringstream oss;
+		oss<<phones[k]<<" : Rs."<<phsum[k];
+		printCentered(oss.str());
+	}
+	ostringstream tot;
+	tot<<"Total income for the day: Rs."<<sum;
+	printCentered(tot.str());
 }
 void Management::monthly_income()
 {
@@ -460,22 +535,22 @@ void Management::monthly_income()
 	string phones[500];
 	do
 	{
-		cout<<"Enter month (1-12): ";
+		cout<<pad("Enter month (1-12): ")<<"Enter month (1-12): ";
 		mm=getInt();
-		if(mm<1||mm>12) cout<<"Month must be between 1 and 12!"<<endl;
+		if(mm<1||mm>12) printCentered("Month must be between 1 and 12!");
 	}
 	while(mm<1||mm>12);
 	do
 	{
-		cout<<"Enter year: ";
+		cout<<pad("Enter year: ")<<"Enter year: ";
 		yy=getInt();
-		if(yy<1900||yy>2100) cout<<"Enter a valid year (1900-2100)!"<<endl;
+		if(yy<1900||yy>2100) printCentered("Enter a valid year (1900-2100)!");
 	}
 	while(yy<1900||yy>2100);
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders yet."<<endl;
+		printCentered("No orders yet.");
 		return;
 	}
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0,sum=0;
@@ -485,12 +560,17 @@ void Management::monthly_income()
 		cnt++;
 	}
 	fin.close();
-	cout<<"----- RECORD FOR "<<mm<<"/"<<yy<<" -----"<<endl;
+	cout<<endl;
+	ostringstream hdr;
+	hdr<<"----- RECORD FOR "<<mm<<"/"<<yy<<" -----";
+	printCentered(hdr.str());
 	for(i=0; i<cnt; i++)
 	{
 		if(m[i]==mm && y[i]==yy)
 		{
-			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
+			ostringstream oss;
+			oss<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i];
+			printCentered(oss.str());
 			sum+=cost[i];
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
@@ -503,10 +583,16 @@ void Management::monthly_income()
 			phsum[k]+=cost[i];
 		}
 	}
-	cout<<"----- PER CUSTOMER BREAKDOWN -----"<<endl;
+	printCentered("----- PER CUSTOMER BREAKDOWN -----");
 	for(int k=0; k<pc; k++)
-		cout<<phones[k]<<" : Rs."<<phsum[k]<<endl;
-	cout<<"Total income for the month: Rs."<<sum<<endl;
+	{
+		ostringstream oss;
+		oss<<phones[k]<<" : Rs."<<phsum[k];
+		printCentered(oss.str());
+	}
+	ostringstream tot;
+	tot<<"Total income for the month: Rs."<<sum;
+	printCentered(tot.str());
 }
 void Management::yearly_income()
 {
@@ -514,16 +600,16 @@ void Management::yearly_income()
 	string phones[500];
 	do
 	{
-		cout<<"Enter year: ";
+		cout<<pad("Enter year: ")<<"Enter year: ";
 		yy=getInt();
-		if(yy<1900||yy>2100) cout<<"Enter a valid year (1900-2100)!"<<endl;
+		if(yy<1900||yy>2100) printCentered("Enter a valid year (1900-2100)!");
 	}
 	while(yy<1900||yy>2100);
 
 	ifstream fin("orders.txt");
 	if(!fin.is_open())
 	{
-		cout<<"No orders yet."<<endl;
+		printCentered("No orders yet.");
 		return;
 	}
 	int d[500],m[500],y[500],cid[500],code[500],q[500],p[500],cost[500],cnt=0,sum=0;
@@ -531,13 +617,18 @@ void Management::yearly_income()
 	while(cnt<500 && fin>>d[cnt]>>m[cnt]>>y[cnt]>>cid[cnt]>>code[cnt]>>nm[cnt]>>q[cnt]>>p[cnt]>>cost[cnt]>>ph[cnt])
 		cnt++;
 	fin.close();
-	cout<<"----- RECORD FOR "<<yy<<" -----"<<endl;
+	cout<<endl;
+	ostringstream hdr;
+	hdr<<"----- RECORD FOR "<<yy<<" -----";
+	printCentered(hdr.str());
 
 	for(i=0; i<cnt; i++)
 	{
 		if(y[i]==yy)
 		{
-			cout<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i]<<endl;
+			ostringstream oss;
+			oss<<ph[i]<<" | "<<nm[i]<<" x"<<q[i]<<" | Rs."<<cost[i];
+			printCentered(oss.str());
 			sum+=cost[i];
 			for(k=0; k<pc; k++)
 				if(phones[k]==ph[i]) break;
@@ -550,10 +641,16 @@ void Management::yearly_income()
 			phsum[k]+=cost[i];
 		}
 	}
-	cout<<"----- PER CUSTOMER BREAKDOWN -----"<<endl;
+	printCentered("----- PER CUSTOMER BREAKDOWN -----");
 	for(k=0; k<pc; k++)
-		cout<<phones[k]<<" : Rs."<<phsum[k]<<endl;
-	cout<<"Total income for the year: Rs."<<sum<<endl;
+	{
+		ostringstream oss;
+		oss<<phones[k]<<" : Rs."<<phsum[k];
+		printCentered(oss.str());
+	}
+	ostringstream tot;
+	tot<<"Total income for the year: Rs."<<sum;
+	printCentered(tot.str());
 }
 int auth()
 {
@@ -562,37 +659,42 @@ int auth()
 	int staffpass[1]= {2222};
 	while(chances<3)
 	{
-		cout<<"Enter your id:(if you are a customer type in 101)";
+		cout<<pad("Enter your id:")<<"Enter your id:"<<endl;
+		cout<<pad("(if you are a customer type in 101) ")<<"(if you are a customer type in 101) ";
 		userkey=getInt();
 		if(userkey==101)
 		{
-			cout<<"welcome"<<endl;
+			printCentered("welcome");
 			return 1;
 		}
 		if(userkey!=staffkey[0])
 		{
 			chances++;
-			cout<<"Wrong id. Attempts left: "<<3-chances<<endl;
+			ostringstream oss;
+			oss<<"Wrong id. Attempts left: "<<3-chances;
+			printCentered(oss.str());
 			continue;
 		}
 		while(chances<3)
 		{
-			cout<<"Enter your password: ";
+			cout<<pad("Enter your password: ")<<"Enter your password: ";
 			userpass=getInt();
 			if(staffpass[0]==userpass)
 			{
-				cout<<"welcome"<<endl;
+				printCentered("welcome");
 				return 2;
 			}
 			else
 			{
 				chances++;
-				cout<<"Wrong password. Attempts left: "<<3-chances<<endl;
+				ostringstream oss;
+				oss<<"Wrong password. Attempts left: "<<3-chances;
+				printCentered(oss.str());
 			}
 		}
 		break;
 	}
-	cout<<"Too many failed attempts. You have been kicked from the program."<<endl;
+	printCentered("Too many failed attempts. You have been kicked from the program.");
 	return 0;
 }
 int main()
@@ -612,28 +714,27 @@ int main()
 			do
 			{
 				clearConsole();
+				cout<<endl<<endl;
 				choice=r.DisplayFirstMenu();
 				switch(choice)
 				{
 					case 1:
-						mbj1.DisplaySecondMenu();
-						break;
-					case 2:
 						c.place_order();
 						break;
-					case 3:
+					case 2:
 						c.cancel_order();
 						break;
-					case 4:
+					case 3:
+						cout<<endl;
 						c.show_summary();
 						break;
-					case 5:
+					case 4:
 						c.checkout();
 						return 0;
-					case 6:
+					case 5:
 						break;
 				}
-				if(choice != 5 && choice != 6)
+				if(choice != 4 && choice != 5)
 					pauseConsole();
 			}
 			while(choice!=6);
@@ -646,17 +747,20 @@ int main()
 			do
 			{
 				clearConsole();
-				cout<<"\n===== MANAGEMENT ====="<<endl;
-				cout<<" 1. View menu"<<endl;
-				cout<<" 2. Add new menu item"<<endl;
-				cout<<" 3. Edit menu (rename / reprice / delete)"<<endl;
-				cout<<" 4. View all sales logs"<<endl;
-				cout<<" 5. Daily income report"<<endl;
-				cout<<" 6. Monthly income report"<<endl;
-				cout<<" 7. Yearly income report"<<endl;
-				cout<<" 8. Search customer by phone"<<endl;
-				cout<<" 9. Exit"<<endl;
-				cout<<"Choice: ";
+				cout<<"\n\n";
+				printCentered("===== MANAGEMENT =====");
+				cout<<endl;
+				printCentered("1. View menu");
+				printCentered("2. Add new menu item");
+				printCentered("3. Edit menu (rename / reprice / delete)");
+				printCentered("4. View all sales logs");
+				printCentered("5. Daily income report");
+				printCentered("6. Monthly income report");
+				printCentered("7. Yearly income report");
+				printCentered("8. Search customer by phone");
+				printCentered("9. Exit");
+				cout<<endl;
+				cout<<pad("Choice: ")<<"Choice: ";
 				ch=getInt();
 				if(ch==1)
 					mg.viewmenu();
@@ -677,7 +781,7 @@ int main()
 				else if(ch==9)
 					break;
 				else
-					cout<<"Invalid choice."<<endl;
+					printCentered("Invalid choice.");
 				if(ch != 9)
 					pauseConsole();
 			}
