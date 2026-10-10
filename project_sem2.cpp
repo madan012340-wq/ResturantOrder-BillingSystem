@@ -3,7 +3,25 @@
 #include <string>
 #include <fstream>
 #include <ctime>
+#include <cstdlib>
+#include <limits>
 using namespace std;
+
+void clearConsole()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void pauseConsole()
+{
+    cout << "\nPress Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
+}
 int itemcode[50]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21};
 string itemname[50]= {"VegMomo","ChickenMomo","BuffMomo","JholMomo","VegChowmein","ChickenChowmein","BuffChowmein","ChickenChoila","AaluSadeko","PaneerChili","BuffSekuwa","VegThakaliSet","ChickenThaliSet","MuttonThakaliSet","MasalaTea","BlackCoffee","HoneyTea","ColdDrinks","LimeSoda","SweetLassi","MangoLassi"};
 int itemprice[50]= {150,200,190,180,120,200,180,280,120,250,380,320,420,550,50,80,60,70,110,100,120};
@@ -61,7 +79,7 @@ class Menu
 		{
 			cout<<endl<<"		  FOOD & BEVERAGE MENU"<<endl<<endl;
 			for(int i=0; i<itemcount; i++)
-				cout<<" "<<itemcode[i]<<".   "<<itemname[i]<<"			Rs. "<<itemprice[i]<<endl;
+				cout<<" "<<itemcode[i]<<".\t"<<itemname[i]<<"\t\tRs. "<<itemprice[i]<<endl;
 		}
 };
 class Resturant
@@ -196,7 +214,7 @@ void Customer::cancel_order()
 void Customer::show_summary()
 {
 	cout<<"Customer ID: "<<custid<<endl;
-	cout<<"----- Your orders this sitting -----"<<endl;
+	cout<<"----- Your orders  -----"<<endl;
 	if(n==0)
 	{
 		cout<<"Nothing ordered yet."<<endl;
@@ -377,7 +395,7 @@ void Management::customer_search()
 }
 void Management::daily_income()
 {
-	int dd,mm,yy,phsum[500]i,k,pc=0;
+	int dd,mm,yy,phsum[500],i,k,pc=0;
 	string phones[500];
 	do
 	{
@@ -579,6 +597,7 @@ int auth()
 }
 int main()
 {
+	clearConsole();
 	loadmenu();
 	int valid=auth();
 	switch(valid)
@@ -592,6 +611,7 @@ int main()
 			int choice;
 			do
 			{
+				clearConsole();
 				choice=r.DisplayFirstMenu();
 				switch(choice)
 				{
@@ -613,6 +633,8 @@ int main()
 					case 6:
 						break;
 				}
+				if(choice != 5 && choice != 6)
+					pauseConsole();
 			}
 			while(choice!=6);
 			break;
@@ -623,6 +645,7 @@ int main()
 			int ch;
 			do
 			{
+				clearConsole();
 				cout<<"\n===== MANAGEMENT ====="<<endl;
 				cout<<" 1. View menu"<<endl;
 				cout<<" 2. Add new menu item"<<endl;
@@ -655,6 +678,8 @@ int main()
 					break;
 				else
 					cout<<"Invalid choice."<<endl;
+				if(ch != 9)
+					pauseConsole();
 			}
 			while(ch!=9);
 			break;
